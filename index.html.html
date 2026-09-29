@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFAD Kurumsal Ayni Bağış — İl Bazlı İhtiyaç Duyurusu Portalı</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+
+  :root {
+    --afad-red: #E30A17;       
+    --navy: #003366;           
+    --navy-deep: #001F3F;      
+    --steel: #4A6582;          
+    --bg: #F4F6F9;             
+    --panel: #FFFFFF;
+    --line: #DCE2EA;
+    --text: #212529;           
+    --muted: #6C757D;
+    
+    --urgent: var(--afad-red);
+    --urgent-bg: #FDF0F1;      
+    --done: #198754;           
+    --done-bg: #E8F5E9;
+    --pending-bg: #FFF3CD;     
+    --pending-text: #856404;
+    --info-bg: #CFF4FC;
+    --info-text: #055160;
+  }
+  
+  *{box-sizing:border-box;}
+  
+  body{
+    margin:0;
+    font-family: 'Roboto', -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+  }
+  
+  header{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:22px 28px;
+    border-bottom: 4px solid var(--afad-red);
+  }
+  header .top{display:flex;align-items:baseline;justify-content:space-between;max-width:1220px;margin:0 auto;flex-wrap:wrap;gap:10px;}
+  header h1{font-size:20px;margin:0;font-weight:700;}
+  header .sub{font-size:13px;color:#B9C6DA;margin-top:2px;}
+  
+  .tabs{display:flex;background:var(--navy);flex-wrap:wrap;}
+  .tabs .tab{padding:12px 22px;color:#CBD6E6;cursor:pointer;font-size:14px;font-weight:500;border-bottom:3px solid transparent;}
+  .tabs .tab.active{color:#fff;border-bottom:3px solid #E8B84B;background:rgba(255,255,255,0.06);}
+  .tabs .tab.disabled{opacity:.45;cursor:not-allowed;}
+  
+  main{max-width:1220px;margin:0 auto;padding:28px;}
+  .view{display:none;}
+  .view.active{display:block;}
+  
+  h2.section-title{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 14px 0;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  .note-box{background:#F0F2F6;border-left:4px solid var(--steel);padding:12px 14px;font-size:13px;color:var(--text);border-radius:0 4px 4px 0;margin-bottom:20px;}
+  
+  .btn{border:none;border-radius:4px;padding:9px 14px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s ease, border-color .15s ease, transform .05s ease;}
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--navy);color:#fff;}
+  .btn-primary:hover{background:var(--navy-deep);}
+  .btn-outline{background:#fff;border:1px solid var(--line);color:var(--text);}
+  .btn-outline:hover{border-color:var(--steel);}
+  .btn-small{padding:6px 10px;font-size:12.5px;}
+  .btn:disabled{background:#E4E7EC;color:#9AA2AE;cursor:not-allowed;}
+  
+  .field{margin-bottom:12px;}
+  .field label{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px;display:block;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:4px;font-size:13.5px;background:#fff;font-family:'Roboto',sans-serif;}
+  .field input:focus,.field select:focus{border-color:var(--navy);outline:none;}
+  
+  .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .grid.two{grid-template-columns:1fr 1fr;}
+  .grid.full{grid-template-columns:1fr;}
+
+  /* login */
+  .login-stage{max-width:920px;margin:24px auto 20px;}
+  .login-shell{display:grid;grid-template-columns:1fr 1.15fr;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-top:4px solid var(--afad-red);}
+  .login-brand{background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);color:#fff;padding:38px 32px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+  .login-brand::after{
+    content:"";position:absolute;right:-60px;bottom:-60px;width:220px;height:220px;
+    border:1px solid rgba(255,255,255,0.08);border-radius:50%;
+  }
+  .login-brand::before{
+    content:"";position:absolute;right:-10px;bottom:-10px;width:140px;height:140px;
+    border:1px solid rgba(255,255,255,0.06);border-radius:50%;
+  }
+  .login-brand .brand-mark{display:flex;align-items:center;gap:10px;}
+  .login-brand .brand-mark .crest{
+    width:36px;height:36px;border-radius:4px;background:var(--afad-red);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .login-brand .brand-mark span{font-size:13px;font-weight:600;letter-spacing:.5px;color:#fff;}
+  .login-brand h3{font-size:22px;font-weight:600;line-height:1.4;margin:26px 0 10px;color:#fff;max-width:280px;}
+  .login-brand .brand-desc{font-size:13px;color:#DCE2EA;line-height:1.6;max-width:290px;}
+  .trust-list{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1;}
+  .trust-list li{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#DCE2EA;line-height:1.5;}
+  .trust-list li svg{flex-shrink:0;margin-top:1px;}
+
+  .login-form-panel{padding:38px 36px;display:flex;flex-direction:column;justify-content:center;}
+  .login-form-panel h4{font-size:18px;font-weight:700;color:var(--navy);margin:0 0 6px;}
+  .login-form-panel .lead{font-size:13px;color:var(--muted);margin-bottom:24px;}
+  .input-group{margin-bottom:16px;}
+  .input-group label{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:6px;display:block;}
+  .input-shell{
+    display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:4px;
+    padding:0 12px;background:#fff;transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .input-shell:focus-within{border-color:var(--navy);box-shadow:0 0 0 2px rgba(0,51,102,0.15);}
+  .input-shell.invalid{border-color:var(--urgent);box-shadow:0 0 0 2px rgba(227,10,23,0.15);}
+  .input-shell svg{flex-shrink:0;color:var(--muted);}
+  .input-shell input{border:none;outline:none;padding:11px 0;font-size:14px;flex:1;background:transparent;color:var(--text);font-family:'Roboto',sans-serif;}
+  .input-shell button.eye-toggle{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;}
+  .input-shell button.eye-toggle:hover{color:var(--steel);}
+  .field-help{font-size:11.5px;color:var(--urgent);margin-top:5px;display:none;}
+  .field-help.show{display:block;}
+
+  .login-cta{
+    width:100%;background:var(--navy);color:#fff;border:none;border-radius:4px;
+    padding:12px 16px;font-size:14.5px;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:background .15s ease, transform .05s ease;margin-top:4px;
+  }
+  .login-cta:hover{background:var(--navy-deep);}
+  .login-cta:active{transform:scale(0.99);}
+  .login-cta:disabled{background:#AEB8C6;cursor:progress;}
+  
+  .spinner{
+    width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;animation:spin .7s linear infinite;display:none;
+  }
+  .login-cta.loading .spinner{display:inline-block;}
+  .login-cta.loading .cta-label{opacity:.85;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .error-box{
+    background:var(--urgent-bg);color:var(--urgent);font-size:12.5px;padding:10px 12px;border-radius:4px;
+    margin-top:14px;display:none;align-items:flex-start;gap:8px;border:1px solid #F5C2C7;
+  }
+  .error-box.show{display:flex;}
+  .error-box svg{flex-shrink:0;margin-top:1px;}
+
+  .demo-hint{
+    border:1px dashed var(--line);color:var(--muted);font-size:11.5px;line-height:1.6;
+    padding:10px 12px;border-radius:4px;margin-top:22px;background:#FAFBFC;
+  }
+  .demo-hint strong{color:var(--steel);font-weight:600;}
+  .register-link{font-size:12.5px;color:var(--muted);text-align:center;margin-top:18px;}
+  .register-link a{color:var(--navy);font-weight:600;text-decoration:none;}
+  .register-link a:hover{text-decoration:underline;}
+
+  .checkbox-row{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);cursor:pointer;line-height:1.5;}
+  .checkbox-row input[type="checkbox"]{margin-top:3px;width:15px;height:15px;flex-shrink:0;accent-color:var(--navy);cursor:pointer;}
+  .checkbox-row.disabled{color:var(--muted);cursor:not-allowed;}
+  .checkbox-row.disabled input{cursor:not-allowed;}
+
+  .accred-badge{display:inline-block;font-size:11px;font-weight:600;padding:4px 8px;border-radius:4px;}
+  .accred-onaylandi{background:var(--done-bg);color:var(--done);border:1px solid #BADBCC;}
+  .accred-talep{background:var(--pending-bg);color:var(--pending-text);border:1px solid #FFECB5;}
+  .accred-yok{background:#F0F2F6;color:var(--muted);border:1px solid var(--line);}
+  .accred-reddedildi{background:var(--urgent-bg);color:var(--urgent);border:1px solid #F5C2C7;}
+
+  .detail-row td{background:#FAFBFC;padding:16px 18px;}
+  .detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 22px;font-size:12.5px;color:var(--muted);margin-bottom:10px;}
+  .detail-grid b{color:var(--text);font-weight:500;}
+  .doc-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:5px 10px;margin-right:8px;color:var(--steel);}
+
+  @media (max-width:760px){
+    .login-shell{grid-template-columns:1fr;}
+    .login-brand{padding:26px 24px;}
+    .login-brand h3{max-width:none;}
+    .trust-list{margin-top:18px;}
+    .login-form-panel{padding:28px 24px;}
+  }
+
+  /* profile card */
+  .profile-card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin-bottom:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,0.02);}
+  .profile-main{display:flex;flex-direction:column;gap:3px;}
+  .profile-main .name{font-size:16.5px;font-weight:700;color:var(--navy);}
+  .profile-main .code{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:4px 8px;border-radius:4px;background:var(--done-bg);color:var(--done);margin-top:4px;width:fit-content;border:1px solid #BADBCC;}
+  .profile-details{display:grid;grid-template-columns:repeat(2,auto);gap:4px 24px;font-size:12.5px;color:var(--muted);align-content:center;}
+  .profile-details b{color:var(--text);font-weight:500;}
+  .locked-note{font-size:11.5px;color:var(--muted);margin-top:6px;font-style:italic;}
+  .logout-link{font-size:12.5px;color:var(--afad-red);cursor:pointer;font-weight:500;text-decoration:underline;align-self:flex-start;}
+
+  /* campaign cards */
+  .filter-row{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-row label{font-size:12.5px;color:var(--muted);font-weight:500;}
+  .filter-row select{padding:7px 10px;border:1px solid var(--line);border-radius:4px;font-size:13px;font-family:'Roboto',sans-serif;}
+  .campaign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px;}
+  .campaign-card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:10px;position:relative;}
+  .campaign-card.completed{border-color:var(--done);background:linear-gradient(180deg,var(--done-bg) 0%, var(--panel) 60px);}
+  .campaign-card .tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.72);color:var(--navy);border:1px solid rgba(255,255,255,0.9);}
+  .tag.il{color:var(--steel);}
+  .campaign-card h3{margin:0;font-size:16px;color:var(--text);font-weight:600;}
+  .campaign-card .desc{font-size:13px;color:var(--muted);}
+  .remaining-row{display:flex;align-items:baseline;justify-content:space-between;margin-top:2px;}
+  .remaining-row .remaining-num{font-size:28px;font-weight:700;color:var(--urgent);font-variant-numeric:tabular-nums;}
+  .remaining-row .remaining-num.done{color:var(--done);}
+  .remaining-row .remaining-unit{font-size:13px;color:var(--muted);margin-left:4px;}
+  .remaining-row .target-note{font-size:11.5px;color:var(--muted);text-align:right;}
+  .progress-track{height:8px;background:rgba(255,255,255,0.65);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--navy);border-radius:4px;}
+  .campaign-card.completed .progress-fill{background:var(--done);}
+  .meta-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:500;}
+  .completed-banner{background:var(--done-bg);color:var(--done);font-size:12.5px;font-weight:600;padding:6px 10px;border-radius:4px;display:inline-block;border:1px solid #BADBCC;}
+
+  .pledge-form{display:none;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);flex-direction:column;gap:2px;}
+  .pledge-form.open{display:flex;}
+  .toast{background:var(--pending-bg);color:var(--pending-text);font-size:12.5px;padding:8px 10px;border-radius:4px;margin-top:4px;display:none;border:1px solid #FFECB5;}
+  .toast.show{display:block;}
+
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,0.02);}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#F0F2F6;color:var(--navy);font-size:12px;font-weight:600;border-bottom:2px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .status-pill{font-size:11.5px;font-weight:500;padding:4px 8px;border-radius:4px;display:inline-block;white-space:nowrap;border:1px solid transparent;}
+  .status-beklemede{background:var(--pending-bg);color:var(--pending-text);border-color:#FFECB5;}
+  .status-incelemede{background:var(--info-bg);color:var(--info-text);border-color:#B6EFFB;}
+  .status-ekbilgi{background:#F3E9D8;color:#8A5A00;border-color:#E6D5B8;}
+  .status-kabul{background:var(--done-bg);color:var(--done);border-color:#BADBCC;}
+  .status-kismi{background:#E7EEF9;color:var(--steel);border-color:#C2D3EB;}
+  .status-red{background:var(--urgent-bg);color:var(--urgent);border-color:#F5C2C7;}
+  .action-btns{display:flex;gap:6px;flex-wrap:wrap;}
+  .empty-note{color:var(--muted);font-size:13px;padding:16px;text-align:center;}
+  
+  .admin-form{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;margin-bottom:28px;box-shadow:0 1px 3px rgba(0,0,0,0.02);}
+  .summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .summary-card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.02);}
+  .summary-card .num{font-size:26px;font-weight:700;color:var(--navy);}
+  .summary-card .lbl{font-size:13px;color:var(--muted);margin-top:4px;font-weight:500;}
+  @media (max-width:760px){ .summary-bar{grid-template-columns:1fr 1fr;} }
+
+  .material-icon{
+    position:absolute;top:14px;right:14px;
+    width:56px;height:56px;border-radius:50%;
+    background:#FFFFFF;
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 6px rgba(0,31,63,0.08);flex-shrink:0;z-index:1;
+  }
+  .material-icon svg{width:30px;height:30px;}
+  .campaign-card.completed .material-icon{background:#F3FAF6;border-color:#CDE9DA;}
+  .card-head{display:flex;gap:12px;align-items:flex-start;}
+  .card-head .card-titles{flex:1;padding-right:66px;}
+  .support-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  
+  .cash-form{display:none;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);flex-direction:column;gap:2px;}
+  .cash-form.open{display:flex;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div>
+      <h1>AFAD Kurumsal Ayni Bağış Portalı</h1>
+      <div class="sub">İl bazlı ihtiyaç duyurusu + doğrulanmış kurumsal hesap girişi — prototip</div>
+    </div>
+  </div>
+</header>
+<div class="tabs">
+  <div class="tab" data-view="register">Akreditasyon Başvurusu</div>
+  <div class="tab active" data-view="login">Kurumsal Giriş</div>
+  <div class="tab" data-view="panel" id="tab-panel">Kurumsal Panel</div>
+  <div class="tab" data-view="admin">Yönetici Görünümü (AFAD)</div>
+</div>
+
+<main>
+
+  <!-- REGISTRATION / PRE-ACCREDITATION VIEW -->
+  <div class="view" id="view-register">
+    <div class="note-box">
+      Bu form, henüz doğrulanmış bir hesabı olmayan firma, STK, vakıf ve derneklerin AFAD'a ön kayıt / akreditasyon başvurusu yapması içindir. Girilen ticari bilgiler ve yüklenen belgeler AFAD tarafından incelenir; inceleme tamamlanana kadar kurumunuzun durumu <strong>"Beklemede"</strong> olarak kalır ve sisteme giriş yapılamaz. Onaylandığında size bir bağışçı kodu ve geçici şifre tanımlanır.
+    </div>
+
+    <h2 class="section-title">Kurum Bilgileri</h2>
+    <div class="admin-form">
+      <div class="grid">
+        <div class="field"><label>Kurum türü</label>
+          <select id="reg-tur">
+            <option>Firma</option>
+            <option>STK / Vakıf / Dernek</option>
+            <option>Kamu Kurumu</option>
+          </select>
+        </div>
+        <div class="field"><label>Ticaret unvanı / Kurum adı</label><input type="text" id="reg-unvan" placeholder="Örn: ABC Tekstil A.Ş."></div>
+        <div class="field"><label>VKN / Vergi No</label><input type="text" id="reg-vkn" placeholder="10 haneli vergi kimlik no" maxlength="11"></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>Ticaret / Dernek-Vakıf Sicil No</label><input type="text" id="reg-sicil" placeholder="Örn: 123456"></div>
+        <div class="field"><label>Faaliyet alanı / sektör</label>
+          <select id="reg-faaliyet">
+            <option>İnşaat</option><option>Gıda</option><option>Tekstil</option><option>Lojistik</option>
+            <option>Sağlık</option><option>Eğitim</option><option>Enerji</option><option>Perakende</option>
+            <option>İnsani Yardım / Sosyal Hizmet</option><option>Diğer</option>
+          </select>
+        </div>
+        <div class="field"><label>Kuruluş tarihi</label><input type="date" id="reg-kurulus"></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>İl</label><select id="reg-il"></select></div>
+        <div class="field"><label>İlçe</label><input type="text" id="reg-ilce" placeholder="Örn: Çankaya"></div>
+        <div class="field"><label>Yetkili kişi (ad soyad)</label><input type="text" id="reg-yetkili-ad" placeholder="Örn: Ayşe Yılmaz"></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>Açık adres</label><input type="text" id="reg-adres" placeholder="Mahalle, cadde, no"></div>
+        <div class="field"><label>Yetkilinin unvanı</label><input type="text" id="reg-yetkili-unvan" placeholder="Örn: Genel Müdür / Yönetim Kurulu Başkanı"></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>İletişim e-postası</label><input type="email" id="reg-email" placeholder="kurum@ornek.com"></div>
+        <div class="field"><label>İletişim telefonu</label><input type="tel" id="reg-telefon" placeholder="+90 5xx xxx xx xx"></div>
+      </div>
+
+      <h2 class="section-title" style="margin-top:22px;">Belgeler</h2>
+      <div class="grid two">
+        <div class="field"><label>İmza sirküleri / yetki belgesi</label><input type="file" id="reg-imza-dosya" accept=".pdf,.jpg,.png"></div>
+        <div class="field"><label>Faaliyet belgesi / Ticaret Sicil Gazetesi ya da STK tüzüğü</label><input type="file" id="reg-faaliyet-dosya" accept=".pdf,.jpg,.png"></div>
+      </div>
+
+      <h2 class="section-title" style="margin-top:22px;">Vergi Muafiyeti Talebi</h2>
+      <label class="checkbox-row">
+        <input type="checkbox" id="reg-vergi-muafiyet">
+        <span>Ayni bağışlarımda vergi muafiyeti tanımlanmasını talep ediyorum (GVK m.89 / KVK m.10 kapsamında değerlendirilmek üzere).</span>
+      </label>
+
+      <label class="checkbox-row" style="margin-top:10px;">
+        <input type="checkbox" id="reg-kvkk">
+        <span>Kişisel verilerin işlenmesine ilişkin aydınlatma metnini okudum, onaylıyorum.</span>
+      </label>
+
+      <button class="btn btn-primary" style="margin-top:18px;" onclick="submitRegistration()">Başvuruyu Gönder</button>
+      <div class="toast" id="register-toast" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- LOGIN VIEW -->
+  <div class="view active" id="view-login">
+    <div class="login-stage">
+      <div class="login-shell">
+
+        <div class="login-brand">
+          <div>
+            <div class="brand-mark">
+              <div class="crest">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+              </div>
+              <span>AFAD KURUMSAL BAĞIŞ PORTALI</span>
+            </div>
+            <h3>Bu kapı yalnızca doğrulanmış kurumlara açılır.</h3>
+            <div class="brand-desc">STK, vakıf, dernek ve firmalar için ayni bağış teklifi verme ekranı. Vatandaş bağışları için lütfen genel bağış portalını kullanın.</div>
+          </div>
+          <ul class="trust-list">
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#E30A17" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Sadece AFAD'a akredite STK, vakıf, dernek ve doğrulanmış firmalar giriş yapabilir
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#E30A17" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Kimlik, VKN / Bağışçı Kodu üzerinden doğrulanır
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#E30A17" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Her bağış teklifi referans numarasıyla denetim izine kaydedilir
+            </li>
+          </ul>
+        </div>
+
+        <div class="login-form-panel">
+          <h4>Kurumsal Hesap Girişi</h4>
+          <div class="lead">Bağış teklifi vermek için doğrulanmış hesabınızla giriş yapın.</div>
+
+          <div class="input-group">
+            <label>VKN / Bağışçı Kodu</label>
+            <div class="input-shell" id="shell-code">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 21V7a2 2 0 0 1 2-2h6l2 2h6a2 2 0 0 1 2 2v12H3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              <input type="text" id="login-code" placeholder="Örn: BGEVDFPF1R" autocomplete="username" oninput="clearFieldError('code')">
+            </div>
+            <div class="field-help" id="help-code">VKN veya Bağışçı Kodu boş bırakılamaz.</div>
+          </div>
+
+          <div class="input-group">
+            <label>Şifre</label>
+            <div class="input-shell" id="shell-pass">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.6"/></svg>
+              <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" oninput="clearFieldError('pass')" onkeydown="if(event.key==='Enter')doLogin()">
+              <button type="button" class="eye-toggle" onclick="togglePass()" aria-label="Şifreyi göster">
+                <svg id="eye-icon" width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+              </button>
+            </div>
+            <div class="field-help" id="help-pass">Şifre boş bırakılamaz.</div>
+          </div>
+
+          <button class="login-cta" id="login-btn" onclick="doLogin()">
+            <span class="spinner"></span>
+            <span class="cta-label">Giriş Yap</span>
+          </button>
+
+          <div class="error-box" id="login-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>Kayıtlı doğrulanmış hesap bulunamadı. Akreditasyon başvurusu için AFAD Bağışçı İlişkileri Dairesi ile iletişime geçiniz.</span>
+          </div>
+
+          <div class="demo-hint">
+            Prototip demo hesapları — Bağışçı Kodu: <strong>BGEVDFPF1R</strong> (Firma) veya <strong>BGJSJEUF8A</strong> (STK), şifre: <strong>demo</strong>
+          </div>
+
+          <div class="register-link">Hesabınız yok mu? <a href="#" onclick="switchTab('register');return false;">Akreditasyon başvurusu yapın</a></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CORPORATE PANEL VIEW -->
+  <div class="view" id="view-panel">
+    <div id="panel-not-logged" class="empty-note">Lütfen önce "Kurumsal Giriş" sekmesinden hesabınızla giriş yapınız.</div>
+    <div id="panel-logged" style="display:none;">
+      <div class="profile-card">
+        <div class="profile-main">
+          <div class="name" id="p-name"></div>
+          <div class="code" id="p-code"></div>
+          <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+            <span class="badge" id="p-badge">Akredite</span>
+            <span class="accred-badge" id="p-vergi-badge"></span>
+          </div>
+        </div>
+        <div class="profile-details">
+          <div>Tür</div><div><b id="p-type"></b></div>
+          <div>VKN</div><div><b id="p-vkn"></b></div>
+          <div>E-posta</div><div><b id="p-email"></b></div>
+          <div>Telefon</div><div><b id="p-phone"></b></div>
+          <div>İl / İlçe</div><div><b id="p-il"></b></div>
+          <div>Adres</div><div><b id="p-adres"></b></div>
+        </div>
+        <div style="width:100%;">
+          <div class="locked-note">İletişim ve adres bilgileri doğrulanmış hesabınızdan otomatik geldi; bağış teklifi sırasında yeniden girilmez, değiştirilemez. Güncelleme için Hesap Ayarları üzerinden AFAD onayına gönderilir.</div>
+          <span class="logout-link" onclick="doLogout()">Çıkış yap</span>
+        </div>
+      </div>
+
+      <h2 class="section-title">Açık İhtiyaç Duyuruları</h2>
+      <div class="filter-row">
+        <label>İl:</label>
+        <select id="filter-il" onchange="renderPanelCampaigns()"><option value="">Tümü</option></select>
+        <label>Kampanya:</label>
+        <select id="filter-kampanya" onchange="renderPanelCampaigns()"><option value="">Tümü</option></select>
+      </div>
+      <div class="campaign-grid" id="panel-campaigns"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div class="view" id="view-admin">
+    <div class="note-box">
+      Duyurular artık il bazlı da açılabilir (belirli bir il için, veya "Tüm Türkiye / Bölge Dışı" olarak genel). Sadece doğrulanmış kurumsal hesaplar teklif verebildiği için gelen her teklifte bağışçı kodu, VKN ve iletişim bilgileri sistemden otomatik doğrulanmış olarak gelir — ayrıca kimlik/iletişim teyidi gerekmez.
+    </div>
+
+    <h2 class="section-title">Akreditasyon Başvuruları — Onay Bekleyen Kurumlar</h2>
+    <table style="margin-bottom:28px;">
+      <thead>
+        <tr>
+          <th>Referans</th><th>Başvuru tarihi</th><th>Tür</th><th>Unvan</th><th>VKN</th>
+          <th>Faaliyet alanı</th><th>İl</th><th>Vergi muafiyeti talebi</th><th>Durum</th><th>İşlem</th>
+        </tr>
+      </thead>
+      <tbody id="admin-accred-rows"></tbody>
+    </table>
+
+    <h2 class="section-title">Genel Özet</h2>
+    <div class="summary-bar" style="margin-bottom:28px;">
+      <div class="summary-card"><div class="num" id="stat-open">0</div><div class="lbl">Açık ihtiyaç duyurusu</div></div>
+      <div class="summary-card"><div class="num" id="stat-pending-ayni">0</div><div class="lbl">Değerlendirme bekleyen ayni teklif</div></div>
+      <div class="summary-card"><div class="num" id="stat-cash-donors">0</div><div class="lbl">Nakdi destek olan kurum sayısı</div></div>
+      <div class="summary-card"><div class="num" id="stat-cash-total">0 ₺</div><div class="lbl">Toplam nakdi destek tutarı</div></div>
+    </div>
+
+    <h2 class="section-title">Yeni İhtiyaç Duyurusu Aç</h2>
+    <div class="admin-form">
+      <div class="grid">
+        <div class="field"><label>Duyuru başlığı</label><input type="text" id="new-title" placeholder="Örn: Hatay Battaniye İhtiyacı"></div>
+        <div class="field"><label>Bağış türü (malzeme)</label><select id="new-category"></select></div>
+        <div class="field"><label>Kampanya / afet</label><select id="new-disaster"></select></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>İl</label><select id="new-il" onchange="onNewIlChange()"><option value="">Tüm Türkiye / Bölge Dışı</option></select></div>
+        <div class="field"><label>İlçe</label><select id="new-ilce"><option value="">Önce il seçiniz</option></select></div>
+        <div class="field"><label>Hedef miktar</label><input type="number" id="new-target" placeholder="Örn: 100000"></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>Birim</label>
+          <select id="new-unit"><option>Adet</option><option>Koli</option><option>Kg</option><option>Litre</option><option>Palet</option><option>m³</option><option>Araç</option><option>Gün</option><option>Saat</option></select>
+        </div>
+        <div class="field"><label>Son tarih</label><input type="date" id="new-deadline"></div>
+      </div>
+      <div class="grid full">
+        <div class="field"><label>Açıklama</label><input type="text" id="new-desc" placeholder="Duyuru kurumsal bağışçıya nasıl görünsün?"></div>
+      </div>
+      <button class="btn btn-primary" onclick="createCampaign()">Duyuruyu Yayınla</button>
+    </div>
+
+    <h2 class="section-title">Yayındaki Duyurular</h2>
+    <table style="margin-bottom:28px;">
+      <thead><tr><th>Duyuru</th><th>İl / İlçe</th><th>Kampanya</th><th>Hedef</th><th>Toplanan</th><th>Kalan</th><th>Durum</th><th></th></tr></thead>
+      <tbody id="admin-campaign-rows"></tbody>
+    </table>
+
+    <h2 class="section-title">Ayni Bağış Teklifleri</h2>
+    <table style="margin-bottom:28px;">
+      <thead>
+        <tr>
+          <th>Referans</th><th>Kayıt tarihi</th><th>Bağışçı kodu</th><th>İletişim adı</th>
+          <th>Kategori</th><th>Ürün / açıklama</th><th>Miktar</th><th>Birim</th>
+          <th>Tahmini değer</th><th>Vergi muafiyeti</th><th>Durum</th><th>İş akışı durumu</th><th>İşlem</th>
+        </tr>
+      </thead>
+      <tbody id="admin-pledge-rows"></tbody>
+    </table>
+
+    <h2 class="section-title">Nakdi Destek Talepleri</h2>
+    <table>
+      <thead>
+        <tr><th>Referans</th><th>Kayıt tarihi</th><th>Bağışçı kodu</th><th>Kurum</th><th>Duyuru</th><th>Tutar</th><th>Not</th><th>Durum</th><th>İşlem</th></tr>
+      </thead>
+      <tbody id="admin-cash-rows"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+// ---------- REFERENCE DATA ----------
+const ILLER = ["Adana","Adıyaman","Afyonkarahisar","Ağrı","Aksaray","Amasya","Ankara","Antalya","Ardahan","Artvin","Aydın","Balıkesir","Bartın","Batman","Bayburt","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa","Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır","Düzce","Edirne","Elazığ","Erzincan","Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Iğdır","Isparta","İstanbul","İzmir","Kahramanmaraş","Karabük","Karaman","Kars","Kastamonu","Kayseri","Kırıkkale","Kırklareli","Kırşehir","Kilis","Kocaeli","Konya","Kütahya","Malatya","Manisa","Mardin","Mersin","Muğla","Muş","Nevşehir","Niğde","Ordu","Osmaniye","Rize","Sakarya","Samsun","Siirt","Sinop","Sivas","Şanlıurfa","Şırnak","Tekirdağ","Tokat","Trabzon","Tunceli","Uşak","Van","Yalova","Yozgat","Zonguldak"];
+
+const MALZEME_TURLERI = ["Afet çadırı (kış şartlarına uygun)","Konteyner veya prefabrik yapılar","Battaniye, uyku tulumu ve nevresim takımı","Yatak ve katlanabilir kampetler","Elektrikli veya gazlı ısıtıcılar (soba vb.)","Jeneratör ve güç kaynakları (powerbank)","El feneri, kafa lambası ve piller","Tüp ve taşınabilir kamp ocakları","Kışlık mont, kaban ve pardesü","Bot, çizme ve kışlık ayakkabılar","Termal içlik, kazak ve hırkalar","Atkı, bere, eldiven ve çorap","Kuru gıda (bakliyat, pirinç, makarna)","Konserve ve hazır yemekler","Bebek maması ve devam sütleri","Su, çay, şeker ve bisküvi türleri","Bebek bezi ve ıslak mendil","Hijyenik ped ve hasta bezleri","Sabun, şampuan ve duş jeli","Diş fırçası ve diş macunu","Deterjan ve dezenfektanlar","İş makinesi ve ekipman desteği (kepçe, forklift, vinç vb.)"];
+
+const KAMPANYALAR = ["Deprem Bağışları","Yangın ve Sel Afeti Yardım Kampanyası","Pakistan Yardım Kampanyası","Afganistan Yardım Kampanyası","Myanmar Yardım Kampanyası","Sudan Yardım Kampanyası","Somali ve Afrika Ülkeleri Yardım Kampanyası","Yemen Yardım Kampanyası","Balkanlar Yardım Kampanyası","Filistin Yardım Kampanyası","Suriye Yardım Kampanyası","Filistin ve Gazze İçin Zekat Kampanyası","Diğer"];
+
+// Yeni Kurumsal AFAD Renkleri İkonlara Uyarlanıyor
+const ICON_DARK = "#003366";
+const ICON_LIGHT = "#4A6582";
+
+const ICON_SVGS = {
+  tent: `<path d="M12 3 21 20H3z" fill="${ICON_DARK}"/><path d="M12 10 16.3 20H7.7z" fill="${ICON_LIGHT}"/><rect x="2" y="19.4" width="20" height="1.6" rx="0.8" fill="${ICON_DARK}"/>`,
+  house: `<path d="M4 11 12 4l8 7z" fill="${ICON_DARK}"/><rect x="6" y="11" width="12" height="9" fill="${ICON_LIGHT}"/><rect x="10" y="15" width="4" height="5" fill="${ICON_DARK}"/>`,
+  bed: `<rect x="2" y="15" width="20" height="5.5" rx="1.4" fill="${ICON_DARK}"/><rect x="4" y="10" width="16" height="5.5" rx="1.4" fill="${ICON_LIGHT}"/><rect x="5" y="8" width="5" height="4" rx="1.4" fill="${ICON_DARK}"/><rect x="1.4" y="14" width="2" height="7" rx="1" fill="${ICON_DARK}"/><rect x="20.6" y="14" width="2" height="7" rx="1" fill="${ICON_DARK}"/>`,
+  flame: `<path d="M12 2c0 4-5 6-5 11a5 5 0 0 0 10 0c0-2-1-3-1-5 0 2-1.5 3-1.5 3C15 8 12 6 12 2z" fill="${ICON_DARK}"/><path d="M11.6 12c0 2-2 2.6-2 4.6a2.4 2.4 0 0 0 4.8 0c0-2.6-2.8-2.7-2.8-4.6z" fill="${ICON_LIGHT}"/>`,
+  battery: `<rect x="2.5" y="7" width="16" height="10" rx="2" fill="${ICON_DARK}"/><rect x="19" y="10" width="2" height="4" rx="0.8" fill="${ICON_DARK}"/><path d="M11.5 9 8 13.3h2.3L9 17l4.5-5h-2.3L12.7 9z" fill="${ICON_LIGHT}"/>`,
+  flashlight: `<polygon points="9,9 15,9 17.5,4 6.5,4" fill="${ICON_LIGHT}"/><rect x="9" y="9" width="6" height="11" rx="1.4" fill="${ICON_DARK}"/><rect x="10.5" y="1.5" width="3" height="2.2" fill="${ICON_DARK}"/>`,
+  coat: `<polygon points="12,2 16,5.5 12,9 8,5.5" fill="${ICON_LIGHT}"/><path d="M8 6 5 7.5v3l1.5-.5V20a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V10l1.5.5v-3L16 6l-4 3z" fill="${ICON_DARK}"/>`,
+  boot: `<path d="M9 2h5v9.5l4.5 3V19a1.6 1.6 0 0 1-1.6 1.6H6.1A1.6 1.6 0 0 1 4.5 19v-3z" fill="${ICON_DARK}"/><rect x="4.3" y="18.4" width="15.4" height="2.6" rx="1.2" fill="${ICON_LIGHT}"/>`,
+  glove: `<rect x="6" y="9.5" width="10.5" height="12" rx="4.5" fill="${ICON_DARK}"/><path d="M14.5 6.5a2.6 2.6 0 0 1 5.2 0v5.4a2.6 2.6 0 0 1-5.2 0z" fill="${ICON_LIGHT}"/>`,
+  sack: `<path d="M7 8h10l1.2 3.4A6.2 6.2 0 0 1 12 20a6.2 6.2 0 0 1-6.2-8.6z" fill="${ICON_DARK}"/><rect x="9.6" y="3.5" width="4.8" height="4.5" rx="1.2" fill="${ICON_LIGHT}"/>`,
+  can: `<rect x="6" y="6.5" width="12" height="13.5" rx="1.3" fill="${ICON_DARK}"/><rect x="6" y="6.5" width="12" height="3.2" rx="1" fill="${ICON_LIGHT}"/><rect x="8.5" y="4" width="7" height="2.4" rx="1" fill="${ICON_LIGHT}"/>`,
+  bottleBaby: `<rect x="9" y="4" width="6" height="2.6" rx="1" fill="${ICON_DARK}"/><rect x="10" y="6.4" width="4" height="4.2" fill="${ICON_LIGHT}"/><rect x="8.3" y="10.4" width="7.4" height="9.6" rx="2.2" fill="${ICON_DARK}"/><rect x="9.7" y="13" width="4.6" height="1.5" rx="0.7" fill="${ICON_LIGHT}"/>`,
+  drop: `<path d="M12 2C12 2 5.5 11 5.5 15.6a6.5 6.5 0 0 0 13 0C18.5 11 12 2 12 2z" fill="${ICON_DARK}"/><path d="M12 8.4c0 0-2.6 4-2.6 6.4a2.6 2.6 0 0 0 5.2 0" fill="none" stroke="${ICON_LIGHT}" stroke-width="1.4" stroke-linecap="round"/>`,
+  diaper: `<path d="M3.5 8.5h17v4.5a8.5 8.5 0 0 1-17 0z" fill="${ICON_DARK}"/><circle cx="7.5" cy="8.5" r="1.6" fill="${ICON_LIGHT}"/><circle cx="16.5" cy="8.5" r="1.6" fill="${ICON_LIGHT}"/>`,
+  medical: `<rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="${ICON_DARK}"/><rect x="10.5" y="6.7" width="3" height="10.6" rx="1" fill="${ICON_LIGHT}"/><rect x="6.7" y="10.5" width="10.6" height="3" rx="1" fill="${ICON_LIGHT}"/>`,
+  soap: `<rect x="9" y="6.3" width="4" height="3" fill="${ICON_DARK}"/><rect x="8" y="9" width="6" height="11.5" rx="2" fill="${ICON_DARK}"/><circle cx="17" cy="6.5" r="1.8" fill="${ICON_LIGHT}"/><circle cx="15" cy="3.3" r="1.2" fill="${ICON_LIGHT}"/>`,
+  toothbrush: `<rect x="2.5" y="10.6" width="14" height="2.8" rx="1.4" fill="${ICON_DARK}"/><rect x="16" y="9" width="5.5" height="6" rx="1.6" fill="${ICON_LIGHT}"/><rect x="17" y="9.8" width="0.9" height="4.4" fill="${ICON_DARK}"/><rect x="18.6" y="9.8" width="0.9" height="4.4" fill="${ICON_DARK}"/><rect x="20.2" y="9.8" width="0.9" height="4.4" fill="${ICON_DARK}"/>`,
+  bottleClean: `<rect x="9.5" y="5" width="5" height="2.6" fill="${ICON_LIGHT}"/><path d="M8.5 7.6h7l1 3.3v8a1.6 1.6 0 0 1-1.6 1.6H9.1a1.6 1.6 0 0 1-1.6-1.6v-8z" fill="${ICON_DARK}"/>`,
+  truck: `<rect x="1.5" y="12" width="12.5" height="6.2" rx="1" fill="${ICON_DARK}"/><path d="M14 10h4.3l3.2 4v4.2H14z" fill="${ICON_DARK}"/><rect x="15.2" y="11.2" width="3" height="2.6" fill="${ICON_LIGHT}"/><circle cx="6" cy="19" r="2.1" fill="${ICON_LIGHT}"/><circle cx="17.3" cy="19" r="2.1" fill="${ICON_LIGHT}"/>`
+};
+
+const MATERIAL_ICONS = {
+  "Afet çadırı (kış şartlarına uygun)": ICON_SVGS.tent,
+  "Konteyner veya prefabrik yapılar": ICON_SVGS.house,
+  "Battaniye, uyku tulumu ve nevresim takımı": ICON_SVGS.bed,
+  "Yatak ve katlanabilir kampetler": ICON_SVGS.bed,
+  "Elektrikli veya gazlı ısıtıcılar (soba vb.)": ICON_SVGS.flame,
+  "Jeneratör ve güç kaynakları (powerbank)": ICON_SVGS.battery,
+  "El feneri, kafa lambası ve piller": ICON_SVGS.flashlight,
+  "Tüp ve taşınabilir kamp ocakları": ICON_SVGS.flame,
+  "Kışlık mont, kaban ve pardesü": ICON_SVGS.coat,
+  "Bot, çizme ve kışlık ayakkabılar": ICON_SVGS.boot,
+  "Termal içlik, kazak ve hırkalar": ICON_SVGS.coat,
+  "Atkı, bere, eldiven ve çorap": ICON_SVGS.glove,
+  "Kuru gıda (bakliyat, pirinç, makarna)": ICON_SVGS.sack,
+  "Konserve ve hazır yemekler": ICON_SVGS.can,
+  "Bebek maması ve devam sütleri": ICON_SVGS.bottleBaby,
+  "Su, çay, şeker ve bisküvi türleri": ICON_SVGS.drop,
+  "Bebek bezi ve ıslak mendil": ICON_SVGS.diaper,
+  "Hijyenik ped ve hasta bezleri": ICON_SVGS.medical,
+  "Sabun, şampuan ve duş jeli": ICON_SVGS.soap,
+  "Diş fırçası ve diş macunu": ICON_SVGS.toothbrush,
+  "Deterjan ve dezenfektanlar": ICON_SVGS.bottleClean,
+  "İş makinesi ve ekipman desteği (kepçe, forklift, vinç vb.)": ICON_SVGS.truck
+};
+function materialIcon(category){
+  const glyph = MATERIAL_ICONS[category] || ICON_SVGS.can;
+  return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">${glyph}</svg>`;
+}
+
+const KAMPANYA_COLORS = {
+  "Deprem Bağışları": {bg:"#FBF3E7", border:"#E8D2A8"},
+  "Yangın ve Sel Afeti Yardım Kampanyası": {bg:"#FBEDE7", border:"#E7B49B"},
+  "Pakistan Yardım Kampanyası": {bg:"#EEF5EC", border:"#B9D8AE"},
+  "Afganistan Yardım Kampanyası": {bg:"#F5EDE4", border:"#D9B98E"},
+  "Myanmar Yardım Kampanyası": {bg:"#FBF6E3", border:"#E6D28C"},
+  "Sudan Yardım Kampanyası": {bg:"#FBEFE5", border:"#EAC29A"},
+  "Somali ve Afrika Ülkeleri Yardım Kampanyası": {bg:"#F8F1E0", border:"#DCC183"},
+  "Yemen Yardım Kampanyası": {bg:"#FAECEC", border:"#E3B3B3"},
+  "Balkanlar Yardım Kampanyası": {bg:"#F1EEF8", border:"#C7BEE3"},
+  "Filistin Yardım Kampanyası": {bg:"#E9F5F2", border:"#A9D6CB"},
+  "Suriye Yardım Kampanyası": {bg:"#EBF1FA", border:"#AFC8EA"},
+  "Filistin ve Gazze İçin Zekat Kampanyası": {bg:"#E6F2F1", border:"#9BC9C4"},
+  "Diğer": {bg:"#EFF2F5", border:"#C7D0DB"}
+};
+function campaignColor(disaster){
+  return KAMPANYA_COLORS[disaster] || KAMPANYA_COLORS["Diğer"];
+}
+
+const ILCELER = {
+  "İstanbul":["Şişli","Kadıköy","Üsküdar","Bağcılar","Esenyurt","Fatih","Beylikdüzü"],
+  "Ankara":["Çankaya","Keçiören","Mamak","Yenimahalle","Etimesgut","Sincan"],
+  "İzmir":["Konak","Bornova","Karşıyaka","Buca","Bayraklı"],
+  "Hatay":["Antakya","İskenderun","Defne","Samandağ","Kırıkhan","Reyhanlı"],
+  "Kahramanmaraş":["Onikişubat","Dulkadiroğlu","Elbistan","Türkoğlu","Pazarcık"],
+  "Gaziantep":["Şahinbey","Şehitkamil","Nizip","İslahiye"],
+  "Adıyaman":["Merkez","Kahta","Gölbaşı","Besni"],
+  "Malatya":["Battalgazi","Yeşilyurt","Doğanşehir"],
+  "Osmaniye":["Merkez","Kadirli","Düziçi"],
+  "Şanlıurfa":["Haliliye","Eyyübiye","Karaköprü","Siverek"],
+  "Diyarbakır":["Bağlar","Kayapınar","Yenişehir","Sur"],
+  "Elazığ":["Merkez","Kovancılar","Palu"],
+  "Kilis":["Merkez","Musabeyli","Elbeyli"],
+  "Adana":["Seyhan","Çukurova","Yüreğir"],
+  "Kocaeli":["İzmit","Gebze","Gölcük","Körfez"],
+  "Bursa":["Osmangazi","Nilüfer","Yıldırım"]
+};
+function ilceListesi(il){ return ILCELER[il] || ["Merkez"]; }
+function onNewIlChange(){
+  const il = document.getElementById("new-il").value;
+  const ilceSel = document.getElementById("new-ilce");
+  if(!il){ ilceSel.innerHTML = `<option value="">İl seçilmedi (tüm ilçeler)</option>`; return; }
+  ilceSel.innerHTML = ilceListesi(il).map(x=>`<option>${x}</option>`).join("");
+}
+
+const VERIFIED_ACCOUNTS = [
+  {code:"BGEVDFPF1R", pass:"demo", name:"Hacı Sabancı A.Ş.", type:"Firma", accredited:true, vkn:"1234567890", email:"bagis@hacisabanci.example", phone:"+90 544 444 44 44", il:"İstanbul", ilce:"Şişli", adres:"Levent Mah. No:12", vergiMuafiyeti:"onaylandi"},
+  {code:"BGJSJEUF8A", pass:"demo", name:"Umut Kurmu Derneği", type:"STK / Vakıf / Dernek", accredited:true, vkn:"9876543210", email:"kurmumut@example.com", phone:"+90 555 555 88 78", il:"Ankara", ilce:"Çankaya", adres:"Kızılay Mah. No:5", vergiMuafiyeti:"talep_edildi"}
+];
+let currentUser = null;
+
+let pendingAccreditations = [
+  {ref:"PN-260825-4K7Q", basvuruTarihi:"2026-08-25", tur:"Firma", unvan:"ABC Tekstil A.Ş.", vkn:"5566778899", sicil:"88421", faaliyet:"Tekstil", kurulus:"2010-03-14", il:"Kocaeli", ilce:"Gebze", adres:"Organize San. Bölgesi 4. Cad. No:9", yetkiliAd:"Mehmet Kaya", yetkiliUnvan:"Genel Müdür", email:"bagis@abctekstil.example", telefon:"+90 262 555 12 12", imzaDosya:"imza_sirkuleri_abc.pdf", faaliyetDosya:"ticaret_sicil_gazetesi_abc.pdf", vergiMuafiyetiTalep:true, durum:"beklemede"}
+];
+let nextRegRef = 1;
+
+let campaigns = [
+  {id:1, title:"Battaniye İhtiyacı", category:"Battaniye, uyku tulumu ve nevresim takımı", disaster:"Filistin Yardım Kampanyası", il:"", ilce:"", unit:"Adet", target:100000, collected:63500, deadline:"2026-09-30", desc:"Kışa hazırlık kapsamında acil battaniye ihtiyacı (bölge dışı, ulusal havuzdan karşılanacak).", status:"open"},
+  {id:2, title:"Hatay Çadır İhtiyacı", category:"Afet çadırı (kış şartlarına uygun)", disaster:"Deprem Bağışları", il:"Hatay", ilce:"Antakya", unit:"Adet", target:500, collected:180, deadline:"2026-10-05", desc:"Hatay ili için kışlık afet çadırı ihtiyacı.", status:"open"},
+  {id:3, title:"Kuru Gıda Kolisi", category:"Kuru gıda (bakliyat, pirinç, makarna)", disaster:"Filistin Yardım Kampanyası", il:"", ilce:"", unit:"Koli", target:20000, collected:20000, deadline:"2026-09-15", desc:"Temel gıda kolisi ihtiyacı.", status:"completed"},
+  {id:4, title:"Enkaz Kaldırma İş Makinesi Desteği", category:"İş makinesi ve ekipman desteği (kepçe, forklift, vinç vb.)", disaster:"Deprem Bağışları", il:"Kahramanmaraş", ilce:"Onikişubat", unit:"Araç", target:60, collected:14, deadline:"2026-09-25", desc:"Enkaz kaldırma çalışmaları için iş makinesi/operatör desteği; malzeme yerine ekipman veya nakdi destek de kabul edilir.", status:"open"},
+  {id:5, title:"Jeneratör İhtiyacı", category:"Jeneratör ve güç kaynakları (powerbank)", disaster:"Deprem Bağışları", il:"Adıyaman", ilce:"Merkez", unit:"Adet", target:150, collected:38, deadline:"2026-10-01", desc:"Elektrik kesintisi yaşanan bölgelerde jeneratör ihtiyacı.", status:"open"},
+  {id:6, title:"Kışlık Mont İhtiyacı", category:"Kışlık mont, kaban ve pardesü", disaster:"Suriye Yardım Kampanyası", il:"", ilce:"", unit:"Adet", target:40000, collected:9500, deadline:"2026-11-15", desc:"Kış mevsimi öncesi kışlık giyim ihtiyacı.", status:"open"},
+  {id:7, title:"Bebek Bezi İhtiyacı", category:"Bebek bezi ve ıslak mendil", disaster:"Filistin Yardım Kampanyası", il:"", ilce:"", unit:"Koli", target:8000, collected:1200, deadline:"2026-10-10", desc:"0-24 ay bebek bezi ihtiyacı.", status:"open"}
+];
+let pledges = [
+  {ref:"AK-260828-QW9CHQ", donorCode:"BGEVDFPF1R", donorName:"Hacı Sabancı A.Ş.", donorEmail:"bagis@hacisabanci.example", donorPhone:"+90 544 444 44 44", campaignId:1, category:"Battaniye, uyku tulumu ve nevresim takımı", itemDesc:"5.000 adet battaniye", qty:5000, unit:"Adet", estValue:50000, currency:"TRY", kayitTarihi:"2026-08-28", status:"Beklemede", workflow:"beklemede"}
+];
+let cashPledges = [];
+let nextCampaignId = 8;
+let refCounter = 1;
+
+function remaining(c){ return Math.max(c.target - c.collected, 0); }
+function pct(c){ return Math.min(100, Math.round((c.collected / c.target) * 100)); }
+function fmt(n){ return n.toLocaleString("tr-TR"); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function genRef(){
+  const d = new Date();
+  const ymd = d.toISOString().slice(2,10).replace(/-/g,"");
+  const rand = Math.random().toString(36).slice(2,8).toUpperCase();
+  return `AK-${ymd}-${rand}`;
+}
+function genCashRef(){
+  const d = new Date();
+  const ymd = d.toISOString().slice(2,10).replace(/-/g,"");
+  const rand = Math.random().toString(36).slice(2,7).toUpperCase();
+  return `NK-${ymd}-${rand}`;
+}
+
+function populateSelect(id, options, placeholder){
+  const el = document.getElementById(id);
+  let html = placeholder ? `<option value="">${placeholder}</option>` : "";
+  options.forEach(o => html += `<option>${o}</option>`);
+  el.innerHTML += html;
+}
+populateSelect("new-category", MALZEME_TURLERI, "Seçiniz");
+populateSelect("new-disaster", KAMPANYALAR, "Seçiniz");
+populateSelect("new-il", ILLER);
+populateSelect("filter-il", ILLER);
+populateSelect("filter-kampanya", KAMPANYALAR);
+populateSelect("reg-il", ILLER, "Seçiniz");
+
+function genRegRef(){
+  const d = new Date();
+  const ymd = d.toISOString().slice(2,10).replace(/-/g,"");
+  const rand = Math.random().toString(36).slice(2,6).toUpperCase();
+  return `PN-${ymd}-${rand}`;
+}
+
+function submitRegistration(){
+  const tur = document.getElementById("reg-tur").value;
+  const unvan = document.getElementById("reg-unvan").value.trim();
+  const vkn = document.getElementById("reg-vkn").value.trim();
+  const sicil = document.getElementById("reg-sicil").value.trim();
+  const faaliyet = document.getElementById("reg-faaliyet").value;
+  const kurulus = document.getElementById("reg-kurulus").value;
+  const il = document.getElementById("reg-il").value;
+  const ilce = document.getElementById("reg-ilce").value.trim();
+  const adres = document.getElementById("reg-adres").value.trim();
+  const yetkiliAd = document.getElementById("reg-yetkili-ad").value.trim();
+  const yetkiliUnvan = document.getElementById("reg-yetkili-unvan").value.trim();
+  const email = document.getElementById("reg-email").value.trim();
+  const telefon = document.getElementById("reg-telefon").value.trim();
+  const imzaFile = document.getElementById("reg-imza-dosya").files[0];
+  const faaliyetFile = document.getElementById("reg-faaliyet-dosya").files[0];
+  const vergiMuafiyetiTalep = document.getElementById("reg-vergi-muafiyet").checked;
+  const kvkk = document.getElementById("reg-kvkk").checked;
+
+  const toast = document.getElementById("register-toast");
+
+  if(!unvan || !vkn || !il || !yetkiliAd || !email || !telefon){
+    toast.className = "toast show";
+    toast.style.background = "var(--urgent-bg)";
+    toast.style.color = "var(--urgent)";
+    toast.style.borderColor = "#F5C2C7";
+    toast.textContent = "Lütfen unvan, VKN, il, yetkili kişi, e-posta ve telefon alanlarını doldurunuz.";
+    return;
+  }
+  if(!kvkk){
+    toast.className = "toast show";
+    toast.style.background = "var(--urgent-bg)";
+    toast.style.color = "var(--urgent)";
+    toast.style.borderColor = "#F5C2C7";
+    toast.textContent = "Başvuru için KVKK aydınlatma metnini onaylamanız gerekiyor.";
+    return;
+  }
+
+  const ref = genRegRef();
+  pendingAccreditations.push({
+    ref, basvuruTarihi: todayISO(), tur, unvan, vkn, sicil, faaliyet, kurulus, il, ilce, adres,
+    yetkiliAd, yetkiliUnvan, email, telefon,
+    imzaDosya: imzaFile ? imzaFile.name : "—",
+    faaliyetDosya: faaliyetFile ? faaliyetFile.name : "—",
+    vergiMuafiyetiTalep, durum:"beklemede"
+  });
+
+  toast.className = "toast show";
+  toast.style.background = "var(--done-bg)";
+  toast.style.color = "var(--done)";
+  toast.style.borderColor = "#BADBCC";
+  toast.textContent = `Başvurunuz alınmıştır. Referans numaranız: ${ref}. Kurumunuzun durumu AFAD incelemesi tamamlanana kadar "Beklemede" olarak kalacaktır; onaylandığında bağışçı kodunuz ve giriş bilgileriniz iletilecektir.`;
+
+  ["reg-unvan","reg-vkn","reg-sicil","reg-kurulus","reg-ilce","reg-adres","reg-yetkili-ad","reg-yetkili-unvan","reg-email","reg-telefon"]
+    .forEach(id=>document.getElementById(id).value="");
+  document.getElementById("reg-imza-dosya").value = "";
+  document.getElementById("reg-faaliyet-dosya").value = "";
+  document.getElementById("reg-vergi-muafiyet").checked = false;
+  document.getElementById("reg-kvkk").checked = false;
+  renderAdmin();
+}
+
+function toggleAccredDetail(ref){
+  const row = document.getElementById(`accred-detail-${ref}`);
+  if(row) row.style.display = row.style.display === "table-row" ? "none" : "table-row";
+}
+
+function renderAccreditationQueue(){
+  const tbody = document.getElementById("admin-accred-rows");
+  tbody.innerHTML = "";
+  if(pendingAccreditations.length === 0){
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-note">Onay bekleyen akreditasyon başvurusu bulunmuyor.</td></tr>`;
+    return;
+  }
+  pendingAccreditations.slice().reverse().forEach(a=>{
+    const isPending = a.durum === "beklemede" || a.durum === "ekbelge";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><a href="#" onclick="toggleAccredDetail('${a.ref}');return false;" style="color:var(--navy);font-weight:600;text-decoration:none;">${a.ref}</a></td>
+      <td>${a.basvuruTarihi}</td>
+      <td>${a.tur}</td>
+      <td>${a.unvan}</td>
+      <td>${a.vkn}</td>
+      <td>${a.faaliyet}</td>
+      <td>${a.il}</td>
+      <td>${a.vergiMuafiyetiTalep ? "Talep edildi" : "—"}</td>
+      <td>${a.durum === "onaylandi" ? `<span class="status-pill status-kabul">Akredite</span>`
+          : a.durum === "reddedildi" ? `<span class="status-pill status-red">Reddedildi</span>`
+          : a.durum === "ekbelge" ? `<span class="status-pill status-ekbilgi">Ek Belge Bekleniyor</span>`
+          : `<span class="status-pill status-beklemede">Beklemede</span>`}</td>
+      <td class="action-btns">
+        ${isPending ? `
+          <button class="btn btn-primary btn-small" onclick="decideAccreditation('${a.ref}','onayla')">Akredite Et</button>
+          <button class="btn btn-outline btn-small" onclick="decideAccreditation('${a.ref}','ekbelge')">Ek Belge</button>
+          <button class="btn btn-outline btn-small" onclick="decideAccreditation('${a.ref}','red')">Red</button>
+        ` : "—"}
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    const detailTr = document.createElement("tr");
+    detailTr.id = `accred-detail-${a.ref}`;
+    detailTr.className = "detail-row";
+    detailTr.style.display = "none";
+    detailTr.innerHTML = `
+      <td colspan="10">
+        <div class="detail-grid">
+          <div>Sicil no <br><b>${a.sicil || "—"}</b></div>
+          <div>Kuruluş tarihi <br><b>${a.kurulus || "—"}</b></div>
+          <div>İlçe <br><b>${a.ilce || "—"}</b></div>
+          <div>Adres <br><b>${a.adres || "—"}</b></div>
+          <div>Yetkili <br><b>${a.yetkiliAd || "—"} ${a.yetkiliUnvan ? "("+a.yetkiliUnvan+")" : ""}</b></div>
+          <div>İletişim <br><b>${a.email || "—"} · ${a.telefon || "—"}</b></div>
+        </div>
+        <div>
+          <span class="doc-chip">📎 ${a.imzaDosya}</span>
+          <span class="doc-chip">📎 ${a.faaliyetDosya}</span>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(detailTr);
+  });
+}
+
+function decideAccreditation(ref, decision){
+  const a = pendingAccreditations.find(x=>x.ref===ref);
+  if(!a) return;
+
+  if(decision === "ekbelge"){ a.durum = "ekbelge"; renderAdmin(); return; }
+  if(decision === "red"){ a.durum = "reddedildi"; renderAdmin(); return; }
+
+  let vergiSonuc = "yok";
+  if(a.vergiMuafiyetiTalep){
+    vergiSonuc = confirm(`${a.unvan} vergi muafiyeti de talep etmiş. Vergi muafiyetini de onaylıyor musunuz?\n(Tamam = Onayla, İptal = Reddet)`) ? "onaylandi" : "reddedildi";
+  }
+  const newCode = "BG" + Math.random().toString(36).slice(2,10).toUpperCase();
+  const tempPass = "afad" + Math.floor(1000+Math.random()*9000);
+  VERIFIED_ACCOUNTS.push({
+    code:newCode, pass:tempPass, name:a.unvan, type:a.tur, accredited:true, vkn:a.vkn,
+    email:a.email, phone:a.telefon, il:a.il, ilce:a.ilce, adres:a.adres, vergiMuafiyeti:vergiSonuc
+  });
+  a.durum = "onaylandi";
+  alert(`${a.unvan} akredite edildi.\nBağışçı Kodu: ${newCode}\nGeçici Şifre: ${tempPass}\n(Gerçek sistemde bu bilgiler kuruma güvenli kanaldan iletilir.)`);
+  renderAdmin();
+}
+
+function togglePass(){
+  const input = document.getElementById("login-pass");
+  const icon = document.getElementById("eye-icon");
+  const showing = input.type === "text";
+  input.type = showing ? "password" : "text";
+  icon.innerHTML = showing
+    ? '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/>'
+    : '<path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M6.6 6.6C4 8.3 1 12 1 12s4 7 11 7c1.8 0 3.4-.4 4.8-1.1M17.9 17.9C20.6 16 23 12 23 12s-1.9-3.4-5-5.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>';
+}
+
+function clearFieldError(which){
+  document.getElementById(`shell-${which}`).classList.remove("invalid");
+  document.getElementById(`help-${which}`).classList.remove("show");
+  document.getElementById("login-error").classList.remove("show");
+}
+
+function doLogin(){
+  const codeEl = document.getElementById("login-code");
+  const passEl = document.getElementById("login-pass");
+  const code = codeEl.value.trim().toUpperCase();
+  const pass = passEl.value;
+  const err = document.getElementById("login-error");
+  const btn = document.getElementById("login-btn");
+
+  let hasFieldError = false;
+  if(!code){ document.getElementById("shell-code").classList.add("invalid"); document.getElementById("help-code").classList.add("show"); hasFieldError = true; }
+  if(!pass){ document.getElementById("shell-pass").classList.add("invalid"); document.getElementById("help-pass").classList.add("show"); hasFieldError = true; }
+  if(hasFieldError) return;
+
+  err.classList.remove("show");
+  btn.classList.add("loading");
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.classList.remove("loading");
+    btn.disabled = false;
+    const acc = VERIFIED_ACCOUNTS.find(a => a.code === code && a.pass === pass);
+    if(!acc){
+      document.getElementById("shell-code").classList.add("invalid");
+      document.getElementById("shell-pass").classList.add("invalid");
+      err.classList.add("show");
+      return;
+    }
+    currentUser = acc;
+    document.getElementById("tab-panel").classList.remove("disabled");
+    switchTab("panel");
+    renderProfile();
+    renderPanelCampaigns();
+  }, 550);
+}
+
+function doLogout(){
+  currentUser = null;
+  document.getElementById("tab-panel").classList.add("disabled");
+  document.getElementById("login-code").value = "";
+  document.getElementById("login-pass").value = "";
+  clearFieldError("code");
+  clearFieldError("pass");
+  switchTab("login");
+}
+
+function renderProfile(){
+  if(!currentUser) return;
+  document.getElementById("panel-not-logged").style.display = "none";
+  document.getElementById("panel-logged").style.display = "block";
+  document.getElementById("p-name").textContent = currentUser.name;
+  document.getElementById("p-code").textContent = "Bağışçı Kodu: " + currentUser.code;
+  document.getElementById("p-badge").textContent = currentUser.accredited ? "Akredite / Doğrulanmış" : "Doğrulama bekliyor";
+  const vergiInfo = {
+    onaylandi:{cls:"accred-onaylandi", label:"Vergi Muafiyeti: Onaylı"},
+    talep_edildi:{cls:"accred-talep", label:"Vergi Muafiyeti: Değerlendiriliyor"},
+    reddedildi:{cls:"accred-reddedildi", label:"Vergi Muafiyeti: Reddedildi"},
+    yok:{cls:"accred-yok", label:"Vergi Muafiyeti: Tanımlı Değil"}
+  }[currentUser.vergiMuafiyeti] || {cls:"accred-yok", label:"Vergi Muafiyeti: Tanımlı Değil"};
+  const vergiEl = document.getElementById("p-vergi-badge");
+  vergiEl.className = "accred-badge " + vergiInfo.cls;
+  vergiEl.textContent = vergiInfo.label;
+  document.getElementById("p-type").textContent = currentUser.type;
+  document.getElementById("p-vkn").textContent = currentUser.vkn;
+  document.getElementById("p-email").textContent = currentUser.email;
+  document.getElementById("p-phone").textContent = currentUser.phone;
+  document.getElementById("p-il").textContent = currentUser.il + " / " + currentUser.ilce;
+  document.getElementById("p-adres").textContent = currentUser.adres;
+}
+
+function renderPanelCampaigns(){
+  if(!currentUser) return;
+  const ilFilter = document.getElementById("filter-il").value;
+  const kampanyaFilter = document.getElementById("filter-kampanya").value;
+  const grid = document.getElementById("panel-campaigns");
+  grid.innerHTML = "";
+
+  const filtered = campaigns.filter(c => {
+    if(ilFilter && c.il !== ilFilter) return false;
+    if(kampanyaFilter && c.disaster !== kampanyaFilter) return false;
+    return true;
+  });
+
+  if(filtered.length === 0){
+    grid.innerHTML = `<div class="empty-note">Seçilen filtreye uyan açık ihtiyaç duyurusu bulunmuyor.</div>`;
+    return;
+  }
+
+  filtered.forEach(c=>{
+    const rem = remaining(c);
+    const isDone = c.status === "completed";
+    const colors = campaignColor(c.disaster);
+    const card = document.createElement("div");
+    card.className = "campaign-card" + (isDone ? " completed" : "");
+    card.style.background = colors.bg;
+    card.style.borderColor = colors.border;
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="material-icon">${materialIcon(c.category)}</div>
+        <div class="card-titles">
+          <div class="tags">
+            <span class="tag">${c.disaster}</span>
+            <span class="tag il">${c.il ? c.il + (c.ilce ? " / " + c.ilce : "") : "Tüm Türkiye"}</span>
+          </div>
+          <h3>${c.title}</h3>
+        </div>
+      </div>
+      <div class="desc">${c.desc}</div>
+      <div class="remaining-row">
+        <div><span class="remaining-num ${isDone?"done":""}">${fmt(rem)}</span><span class="remaining-unit">${c.unit} kaldı</span></div>
+        <div class="target-note">Hedef: ${fmt(c.target)} ${c.unit}<br>Toplanan: ${fmt(c.collected)} ${c.unit}</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct(c)}%"></div></div>
+      <div class="meta-row"><span>Son tarih: ${c.deadline}</span><span>${isDone?"":pct(c)+"% karşılandı"}</span></div>
+      ${isDone
+        ? `<span class="completed-banner">İhtiyaç karşılanmıştır — teşekkür ederiz</span>`
+        : `<div class="support-btns">
+             <button class="btn btn-primary" onclick="togglePledgeForm(${c.id})">Malzeme Bağışı Yap</button>
+             <button class="btn btn-outline" onclick="toggleCashForm(${c.id})">💳 Nakdi Destek Ol</button>
+           </div>
+           <div class="pledge-form" id="pledge-form-${c.id}">
+             <div class="field"><label>Ürün / açıklama</label><input type="text" id="item-desc-${c.id}" placeholder="Örn: 500 adet battaniye, koli halinde"></div>
+             <div class="field"><label>Miktar (${c.unit})</label><input type="number" id="item-qty-${c.id}" max="${rem}"></div>
+             <div class="field"><label>Tahmini değer (TRY)</label><input type="number" id="item-val-${c.id}" placeholder="İsteğe bağlı"></div>
+             <div class="field"><label>Nakliye / teslimat</label>
+               <select id="item-nakliye-${c.id}">
+                 <option>Kendim teslim ederim</option>
+                 <option>AFAD'ın belirlediği depoya bırakırım</option>
+                 <option>AFAD'ın gelip almasını talep ediyorum</option>
+               </select>
+             </div>
+             ${currentUser.vergiMuafiyeti === "onaylandi" ? `
+               <label class="checkbox-row" style="margin-top:4px;">
+                 <input type="checkbox" id="item-vergi-${c.id}" checked>
+                 <span>Bu bağış için vergi muafiyeti belgesi düzenlensin (GVK m.89 / KVK m.10 kapsamında)</span>
+               </label>
+             ` : `
+               <label class="checkbox-row disabled" style="margin-top:4px;">
+                 <input type="checkbox" disabled>
+                 <span>Vergi muafiyeti tanımınız onaylı değil — talep etmek için Akreditasyon Başvurusu / hesap güncelleme sürecini kullanın.</span>
+               </label>
+             `}
+             <div class="locked-note">İletişim adı, e-posta, telefon ve adres bilgileri hesabınızdan (${currentUser?currentUser.name:""}) otomatik alınacak — ayrıca girilmez.</div>
+             <button class="btn btn-outline btn-small" style="width:fit-content;margin-top:6px;" onclick="submitPledge(${c.id})">Teklifi Gönder</button>
+             <div class="toast" id="pledge-toast-${c.id}">Teklifiniz alınmıştır, referans numaranız oluşturuldu ve yetkili değerlendirmesine gönderildi.</div>
+           </div>
+           <div class="cash-form" id="cash-form-${c.id}">
+             <div class="field"><label>Destek tutarı (TRY)</label><input type="number" id="cash-amount-${c.id}" placeholder="Örn: 25000"></div>
+             <div class="field"><label>Not (isteğe bağlı)</label><input type="text" id="cash-note-${c.id}" placeholder="Örn: Bu tutar battaniye alımı için kullanılabilir"></div>
+             <div class="locked-note">Bu tutar, ilgili malzemenin AFAD tarafından temin edilmesi için kullanılacaktır; malzemeyi kendiniz temin edemiyorsanız bu seçeneği kullanabilirsiniz.</div>
+             <button class="btn btn-outline btn-small" style="width:fit-content;margin-top:6px;" onclick="submitCashPledge(${c.id})">Nakdi Desteği Gönder</button>
+             <div class="toast" id="cash-toast-${c.id}">Nakdi destek talebiniz alınmıştır, yetkili değerlendirmesine gönderildi.</div>
+           </div>`
+      }
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function togglePledgeForm(id){ document.getElementById(`pledge-form-${id}`).classList.toggle("open"); }
+function toggleCashForm(id){ document.getElementById(`cash-form-${id}`).classList.toggle("open"); }
+
+function submitCashPledge(campaignId){
+  const c = campaigns.find(x=>x.id===campaignId);
+  const amount = parseFloat(document.getElementById(`cash-amount-${campaignId}`).value);
+  const note = document.getElementById(`cash-note-${campaignId}`).value.trim();
+  if(!amount || amount <= 0){ alert("Lütfen geçerli bir tutar giriniz."); return; }
+  cashPledges.push({
+    ref: genCashRef(), donorCode: currentUser.code, donorName: currentUser.name, campaignId,
+    campaignTitle: c.title, amount, currency:"TRY", note: note || "—", kayitTarihi: todayISO(), workflow:"beklemede"
+  });
+  document.getElementById(`cash-amount-${campaignId}`).value = "";
+  document.getElementById(`cash-note-${campaignId}`).value = "";
+  const toast = document.getElementById(`cash-toast-${campaignId}`);
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 4500);
+  renderAdmin();
+}
+
+function submitPledge(campaignId){
+  const c = campaigns.find(x=>x.id===campaignId);
+  const desc = document.getElementById(`item-desc-${campaignId}`).value.trim();
+  const qty = parseInt(document.getElementById(`item-qty-${campaignId}`).value, 10);
+  const val = parseFloat(document.getElementById(`item-val-${campaignId}`).value) || null;
+  const vergiCheckbox = document.getElementById(`item-vergi-${campaignId}`);
+  const vergiMuafiyetiIstendi = vergiCheckbox ? vergiCheckbox.checked : false;
+  if(!desc || !qty || qty <= 0){ alert("Lütfen ürün açıklaması ve geçerli bir miktar giriniz."); return; }
+  pledges.push({
+    ref: genRef(), donorCode: currentUser.code, donorName: currentUser.name, donorEmail: currentUser.email,
+    donorPhone: currentUser.phone, campaignId, category: c.category, itemDesc: desc, qty, unit: c.unit,
+    estValue: val, currency:"TRY", vergiMuafiyeti: vergiMuafiyetiIstendi, kayitTarihi: todayISO(), status:"Beklemede", workflow:"beklemede"
+  });
+  const toast = document.getElementById(`pledge-toast-${campaignId}`);
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 4500);
+  renderAdmin();
+}
+
+function createCampaign(){
+  const title = document.getElementById("new-title").value.trim();
+  const category = document.getElementById("new-category").value;
+  const disaster = document.getElementById("new-disaster").value;
+  const il = document.getElementById("new-il").value;
+  const ilce = document.getElementById("new-ilce").value;
+  const target = parseInt(document.getElementById("new-target").value, 10);
+  const unit = document.getElementById("new-unit").value;
+  const deadline = document.getElementById("new-deadline").value;
+  const desc = document.getElementById("new-desc").value.trim();
+
+  if(!title || !category || !disaster || !target || target<=0 || !deadline){
+    alert("Lütfen başlık, bağış türü, kampanya, hedef miktar ve son tarihi giriniz."); return;
+  }
+  campaigns.push({id: nextCampaignId++, title, category, disaster, il, ilce, unit, target, collected:0, deadline, desc: desc||"—", status:"open"});
+  ["new-title","new-target","new-deadline","new-desc"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("new-ilce").innerHTML = `<option value="">Önce il seçiniz</option>`;
+  renderAll();
+}
+
+function closeCampaign(id){
+  const c = campaigns.find(x=>x.id===id);
+  if(c) c.status = "completed";
+  renderAll();
+}
+
+function statusPillClass(workflow){
+  return { beklemede:"status-beklemede", incelemede:"status-incelemede", ekbilgi:"status-ekbilgi", kabul:"status-kabul", kismi:"status-kismi", red:"status-red" }[workflow] || "status-beklemede";
+}
+function statusLabel(workflow){
+  return { beklemede:"Beklemede", incelemede:"İncelemede", ekbilgi:"Ek bilgi talebi", kabul:"Kabul", kismi:"Kısmi Kabul", red:"Red" }[workflow] || workflow;
+}
+
+function renderAdmin(){
+  renderAccreditationQueue();
+
+  const cRows = document.getElementById("admin-campaign-rows");
+  cRows.innerHTML = "";
+  campaigns.forEach(c=>{
+    const rem = remaining(c);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span style="display:inline-flex;width:20px;height:20px;vertical-align:middle;margin-right:6px;">${materialIcon(c.category)}</span><strong>${c.title}</strong><br><span style="color:var(--muted);font-size:11.5px;">${c.category}</span></td>
+      <td>${c.il ? c.il + (c.ilce ? " / " + c.ilce : "") : "Tüm Türkiye"}</td>
+      <td>${c.disaster}</td>
+      <td>${fmt(c.target)} ${c.unit}</td>
+      <td>${fmt(c.collected)} ${c.unit}</td>
+      <td>${fmt(rem)} ${c.unit}</td>
+      <td>${c.status==="completed" ? `<span class="status-pill status-kabul">Karşılandı</span>` : `<span class="status-pill status-beklemede">Açık</span>`}</td>
+      <td>${c.status==="open" ? `<button class="btn btn-outline btn-small" onclick="closeCampaign(${c.id})">Kapat</button>` : ""}</td>
+    `;
+    cRows.appendChild(tr);
+  });
+
+  const pRows = document.getElementById("admin-pledge-rows");
+  pRows.innerHTML = "";
+  if(pledges.length === 0){
+    pRows.innerHTML = `<tr><td colspan="13" class="empty-note">Henüz bağış teklifi bulunmuyor.</td></tr>`;
+  } else {
+    pledges.slice().reverse().forEach(p=>{
+      const c = campaigns.find(x=>x.id===p.campaignId);
+      const rem = c ? remaining(c) : 0;
+      const isPending = p.workflow === "beklemede" || p.workflow === "incelemede";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.ref}</td>
+        <td>${p.kayitTarihi}</td>
+        <td>${p.donorCode}</td>
+        <td>${p.donorName}<br><span style="color:var(--muted);font-size:11px;">${p.donorEmail}</span></td>
+        <td>${p.category}</td>
+        <td>${p.itemDesc}${c && p.qty>rem && isPending ? `<br><span style="color:var(--urgent);font-size:11px;">Kalan ihtiyaçtan (${fmt(rem)}) fazla</span>`:""}</td>
+        <td>${fmt(p.qty)}</td>
+        <td>${p.unit}</td>
+        <td>${p.estValue ? fmt(p.estValue)+" "+p.currency : "—"}</td>
+        <td>${p.vergiMuafiyeti ? `<span class="accred-badge accred-onaylandi">Talep edildi</span>` : "—"}</td>
+        <td>${p.status}</td>
+        <td><span class="status-pill ${statusPillClass(p.workflow)}">${statusLabel(p.workflow)}</span></td>
+        <td class="action-btns">
+          ${isPending ? `
+            <button class="btn btn-primary btn-small" onclick="decidePledge('${p.ref}','kabul')">Kabul</button>
+            <button class="btn btn-outline btn-small" onclick="decidePledge('${p.ref}','kismi')">Kısmi</button>
+            <button class="btn btn-outline btn-small" onclick="decidePledge('${p.ref}','ekbilgi')">Ek Bilgi</button>
+            <button class="btn btn-outline btn-small" onclick="decidePledge('${p.ref}','red')">Red</button>
+          ` : "—"}
+        </td>
+      `;
+      pRows.appendChild(tr);
+    });
+  }
+
+  renderCashPledges();
+  renderAdminStats();
+}
+
+function renderCashPledges(){
+  const rows = document.getElementById("admin-cash-rows");
+  rows.innerHTML = "";
+  if(cashPledges.length === 0){
+    rows.innerHTML = `<tr><td colspan="9" class="empty-note">Henüz nakdi destek talebi bulunmuyor.</td></tr>`;
+    return;
+  }
+  cashPledges.slice().reverse().forEach(cp=>{
+    const isPending = cp.workflow === "beklemede";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${cp.ref}</td>
+      <td>${cp.kayitTarihi}</td>
+      <td>${cp.donorCode}</td>
+      <td>${cp.donorName}</td>
+      <td>${cp.campaignTitle}</td>
+      <td>${fmt(cp.amount)} ${cp.currency}</td>
+      <td>${cp.note}</td>
+      <td><span class="status-pill ${statusPillClass(cp.workflow)}">${statusLabel(cp.workflow)}</span></td>
+      <td class="action-btns">
+        ${isPending ? `
+          <button class="btn btn-primary btn-small" onclick="decideCashPledge('${cp.ref}','kabul')">Onayla</button>
+          <button class="btn btn-outline btn-small" onclick="decideCashPledge('${cp.ref}','red')">Red</button>
+        ` : "—"}
+      </td>
+    `;
+    rows.appendChild(tr);
+  });
+}
+
+function decideCashPledge(ref, decision){
+  const cp = cashPledges.find(x=>x.ref===ref);
+  if(!cp) return;
+  cp.workflow = decision === "kabul" ? "kabul" : "red";
+  renderAdmin();
+}
+
+function renderAdminStats(){
+  document.getElementById("stat-open").textContent = campaigns.filter(c=>c.status==="open").length;
+  document.getElementById("stat-pending-ayni").textContent = pledges.filter(p=>p.workflow==="beklemede"||p.workflow==="incelemede").length;
+  const cashDonorCodes = new Set(cashPledges.map(cp=>cp.donorCode));
+  document.getElementById("stat-cash-donors").textContent = cashDonorCodes.size;
+  const totalCash = cashPledges.reduce((s,cp)=> s + (cp.workflow==="red" ? 0 : cp.amount), 0);
+  document.getElementById("stat-cash-total").textContent = fmt(totalCash) + " ₺";
+}
+
+function decidePledge(ref, decision){
+  const p = pledges.find(x=>x.ref===ref);
+  const c = campaigns.find(x=>x.id===p.campaignId);
+  if(!p) return;
+
+  if(decision === "ekbilgi"){ p.workflow = "ekbilgi"; p.status = "Beklemede"; renderAll(); return; }
+  if(decision === "red"){ p.workflow = "red"; p.status = "İptal"; renderAll(); return; }
+
+  if(!c){ alert("Duyuru bulunamadı."); return; }
+  let acceptedQty = p.qty;
+  if(decision === "kismi"){
+    const input = prompt(`Kabul edilecek miktarı giriniz (kalan ihtiyaç: ${remaining(c)} ${c.unit}):`, Math.min(p.qty, remaining(c)));
+    acceptedQty = parseInt(input, 10);
+    if(!acceptedQty || acceptedQty<=0) return;
+  }
+  acceptedQty = Math.min(acceptedQty, remaining(c));
+  c.collected += acceptedQty;
+  p.workflow = acceptedQty < p.qty ? "kismi" : "kabul";
+  p.status = "Onaylandı";
+  p.acceptedQty = acceptedQty;
+
+  if(remaining(c) <= 0){
+    c.status = "completed";
+    pledges.filter(x=>x.campaignId===c.id && (x.workflow==="beklemede"||x.workflow==="incelemede") && x.ref!==p.ref)
+           .forEach(x=>{ x.workflow="red"; x.status="İptal"; });
+  }
+  renderAll();
+}
+
+function switchTab(view){
+  if(view === "panel" && !currentUser) return;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelector(`.tab[data-view="${view}"]`).classList.add("active");
+  document.getElementById(`view-${view}`).classList.add("active");
+}
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=> switchTab(tab.dataset.view));
+});
+document.getElementById("tab-panel").classList.add("disabled");
+
+function renderAll(){ renderAdmin(); if(currentUser) renderPanelCampaigns(); }
+renderAll();
+</script>
+</body>
+</html>
