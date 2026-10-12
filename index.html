@@ -599,6 +599,10 @@ details.how{margin:10px 0 28px;font-size:12.5px}details.how summary{cursor:point
         </div>
       </div>
 
+      <h2 class="section-title">Tekliflerim ve Bildirimler</h2>
+      <div id="donor-notifs"></div>
+      <div id="donor-pledges"></div>
+
       <h2 class="section-title">Açık İhtiyaç Duyuruları</h2>
       <div class="filter-row">
         <label>İl:</label>
@@ -1518,6 +1522,8 @@ function decidePledge(ref, decision){
   p.workflow = acceptedQty < p.qty ? "kismi" : "kabul";
   p.status = "Onaylandı";
   p.acceptedQty = acceptedQty;
+  p.teslim = deliveryInfo(c);
+  pushApprovalNotif(p, c);
 
   if(remaining(c) <= 0){
     c.status = "completed";
@@ -1593,6 +1599,62 @@ function urgPill(c){
 function legendHTML(counts){
   return CL.map(x => `<span><i style="background:${x.c}"></i>${x.k} (${x.min ? '≥' + x.min : '<35'})${counts ? ' · <b>' + counts[x.k] + '</b>' : ''}</span>`).join('')
     + `<span><i style="background:${DONE.c}"></i>Karşılandı</span>`;
+}
+
+// ---------- Teslim noktası (örnek/genel veri — kampanyaya özel teslimAdres / teslimKisi / teslimTel alanları tanımlanırsa onlar kullanılır) ----------
+function deliveryInfo(c){
+  const il = c.il ? c.il : "", ilce = c.ilce || "Merkez";
+  const adres = c.teslimAdres || (il
+    ? `${il} AFAD İl Müdürlüğü Afet Lojistik Deposu — Örnek Mah. Lojistik Cad. No: 1, ${il} / ${ilce}`
+    : `AFAD Uluslararası Yardım Lojistik Merkezi — Örnek Mah. Lojistik Cad. No: 1, Ankara`);
+  const kisi = c.teslimKisi || "Ad Soyad (Depo Sorumlusu)";
+  const tel = c.teslimTel || "0 (000) 000 00 00";
+  return {adres, kisi, tel};
+}
+function deliveryHTML(d, title){
+  return `<div class="delivery-box" style="margin-top:10px;padding:10px 12px;border:1px dashed #1E7B4B;border-radius:8px;background:#F0FAF4;font-size:12.5px;line-height:1.55">
+    <div style="font-weight:700;color:#1E7B4B;margin-bottom:3px">📦 ${esc(title || "Teslim Bilgileri")}</div>
+    <div><b>Teslim adresi:</b> ${esc(d.adres)}</div>
+    <div><b>Teslim kişisi:</b> ${esc(d.kisi)}</div>
+    <div><b>İletişim:</b> <span style="white-space:nowrap">${esc(d.tel)}</span></div></div>`;
+}
+
+// ---------- Bağışçı bildirimleri + "Tekliflerim" (teslim bilgisi yalnızca onaydan sonra görünür) ----------
+let notifications = [];
+let notifSeq = 1;
+function pushApprovalNotif(p, c){
+  const d = p.teslim, qty = p.acceptedQty || p.qty;
+  const n = {id: notifSeq++, donorCode: p.donorCode, ref: p.ref, date: todayISO(), read: false,
+    title: (p.workflow === "kismi" ? "Teklifiniz kısmen onaylandı" : "Teklifiniz onaylandı"),
+    body: `${c.title}: ${fmt(qty)} ${c.unit} için teslim bilgileri hazır.`, teslim: d};
+  notifications.push(n);
+  if (currentUser && currentUser.code === p.donorCode) toast(`🔔 ${n.title} (Ref: ${p.ref}). Teslim adresi ve irtibat kişisi "Tekliflerim ve Bildirimler" bölümünde.`);
+}
+function markNotifRead(id){ const n = notifications.find(x => x.id === id); if (n) n.read = true; renderDonorPledges(); }
+const WF_LABEL = {beklemede:["Değerlendirmede","#8A6D00","#FFF4CC"], incelemede:["İncelemede","#8A6D00","#FFF4CC"], ekbilgi:["Ek bilgi bekleniyor","#8A6D00","#FFF4CC"],
+  kabul:["Onaylandı","#1E7B4B","#DFF5E8"], kismi:["Kısmen onaylandı","#1E7B4B","#DFF5E8"], red:["Reddedildi / iptal","#A32020","#FBE3E3"]};
+function renderDonorPledges(){
+  const nb = $('donor-notifs'), pb = $('donor-pledges'); if (!nb || !pb || !currentUser) return;
+  const mine = notifications.filter(n => n.donorCode === currentUser.code), unread = mine.filter(n => !n.read);
+  $('hb-name').textContent = '🏢 ' + currentUser.name + (unread.length ? ' · 🔔 ' + unread.length : '');
+  nb.innerHTML = unread.map(n => `<div style="border:1px solid #1E7B4B;background:#F0FAF4;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+        <div><div style="font-weight:700;color:#1E7B4B">🔔 ${esc(n.title)} <span style="font-weight:400;color:var(--muted);font-size:11.5px">· Ref: ${esc(n.ref)} · ${esc(n.date)}</span></div>
+        <div style="font-size:13px;margin-top:2px">${esc(n.body)}</div></div>
+        <button class="btn btn-outline btn-small" onclick="markNotifRead(${n.id})">Okundu</button></div>
+      ${deliveryHTML(n.teslim, "Teslim adresi ve irtibat kişisi")}</div>`).join("");
+  const rows = pledges.filter(p => p.donorCode === currentUser.code);
+  pb.innerHTML = rows.length ? rows.map(p => {
+    const c = campaigns.find(x => x.id === p.campaignId), t = c ? c.title : "Duyuru #" + p.campaignId, w = WF_LABEL[p.workflow] || WF_LABEL.beklemede;
+    const ok = p.workflow === "kabul" || p.workflow === "kismi";
+    return `<div style="border:1px solid var(--border,#D9E0E8);background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="font-weight:700;color:var(--navy)">${esc(t)}</div>
+        <span style="font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;color:${w[1]};background:${w[2]}">${w[0]}</span></div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:3px">Ref: ${esc(p.ref)} · ${esc(p.itemDesc)} · Teklif: ${fmt(p.qty)} ${esc(p.unit)}${ok && p.acceptedQty ? ` · Kabul edilen: ${fmt(p.acceptedQty)} ${esc(p.unit)}` : ""}</div>
+      ${ok && p.teslim ? deliveryHTML(p.teslim, "Teslim adresi ve irtibat kişisi")
+        : (p.workflow === "red" ? "" : `<div style="margin-top:8px;font-size:12px;color:var(--muted)">🔒 Teslim adresi ve irtibat kişisi, teklifiniz onaylandıktan sonra burada ve bildirim olarak gösterilecektir.</div>`)}</div>`;
+  }).join("") : `<div class="empty-note">Henüz bir malzeme teklifiniz bulunmuyor. Aşağıdaki duyurulardan teklif verebilirsiniz.</div>`;
 }
 
 // ---------- Ortak duyuru kartı (harita paneli, pano ve kurumsal panel) ----------
@@ -1772,7 +1834,7 @@ function switchTab(v){
 function afterLogin(){ $('header-user-badge').classList.add('logged-in'); $('hb-name').textContent = '🏢 ' + currentUser.name; $('tab-panel').classList.remove('disabled'); renderAll(); }
 function afterLogout(){ $('header-user-badge').classList.remove('logged-in'); $('tab-panel').classList.add('disabled'); renderAll(); }
 function renderAll(){
-  renderAdmin(); renderAudit(); if (currentUser) renderPanelCampaigns(); renderBoard(); updateMaps();
+  renderAdmin(); renderAudit(); if (currentUser){ renderPanelCampaigns(); renderDonorPledges(); } renderBoard(); updateMaps();
   const n = pledges.filter(p => PENDING.includes(p.workflow)).length + cashPledges.filter(x => x.workflow === 'beklemede').length
           + pendingAccreditations.filter(a => a.durum === 'beklemede' || a.durum === 'ekbelge').length;
   $('admin-badge').textContent = n;
